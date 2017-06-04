@@ -1,0 +1,107 @@
+\documentclass[12pt]{article}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amsthm,amssymb,amsfonts, bm}
+\usepackage{enumitem, nth}
+\usepackage{mathtools}
+
+\usepackage{listings}
+\usepackage{color}
+ 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+\lstset{style=mystyle}
+
+
+\begin{document}
+\title{CS224n HW1}
+\author{Xinyu Tan}
+\maketitle
+
+%-----------------------------
+% problem 1: softmax
+%-----------------------------
+\section {Softmax}
+\subsection*{(a)}
+Take a look at any element $i$, 
+$$
+\text{softmax}(\bm x + c)_i = \frac{e^{\bm x_i + c}}{\sum_{j} e^ {\bm x_j + c}} = \frac{e^c \cdot e^{\bm x_i}}{e^c \cdot \sum_j e^{\bm x_j}} = \text{softmax}(\bm x )_i 
+$$
+Therefore, we have $\text{softmax}(\bm x + c) = \text{softmax}(\bm x)$
+
+\subsection*{(b)}
+Note the first case illustrate the broadcasting principle (dimension match) in numpy:
+\begin{lstlisting}[language=Python]
+if len(x.shape) > 1:
+	#matrix
+	x = x - np.max(x, axis=1, keepdims=True)
+	x = np.exp(x) / np.sum(np.exp(x), axis=1, keepdims=True)
+else:
+	# vector
+	x = x - x.max() # normalize
+	x = np.exp(x)/np.sum(np.exp(x))
+\end{lstlisting}
+
+
+%----------------------------------------------
+% problem 2: Neural network basics
+%----------------------------------------------
+\section{Neural Network Basics}
+\subsection*{(a)}
+$$
+\frac{d \sigma (x)}{dx} = \frac{e^{-x}}{(1-e^{-x})^2} = \sigma(x) (1 - \sigma(x))
+$$
+
+\subsection*{(b)}
+First, we have
+	$$\hat y_i = \frac{e^{\theta_i}}{\sum_j e^{\theta_j}}$$
+For one-hot encoding, only $k$-th element in $\bm y$ is \emph{one}, so we have
+\begin{align*}
+CE(\bm y, \bm {\hat y}) &= - \log \hat y_k = - \log \frac{e^{\theta_k}}{\sum_j e^{\theta_j}} \\
+				&= - \theta_k + \log \sum_j e^{\theta_j}
+\end{align*}
+
+Therefore, 
+\begin{align*}
+&\frac{\partial CE(\bm y, \bm {\hat y})} {\partial \theta_k} = -1 + \frac{e^{\theta_k}}{\sum_j e^{\theta_j}}  \\
+&\frac{\partial CE(\bm y, \bm {\hat y})} {\partial \theta_i} =  \frac{e^{\theta_i}}{\sum_j e^{\theta_j}}, \forall i \neq k
+\end{align*}
+
+Put them altogether,
+$$
+\frac{\partial CE(\bm y, \bm {\hat y})} {\partial \bm \theta} = -\bm y + \text{softmax}(\bm {\theta}) = \bm {\hat y} - \bm y
+$$
+
+\subsection*{(c)}
+
+
+
+
+
+
+
+
+	
+\end{document}
