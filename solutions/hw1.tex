@@ -29,7 +29,7 @@
     showspaces=false,                
     showstringspaces=false,
     showtabs=false,                  
-    tabsize=2
+    tabsize=4
 }
  
 \lstset{style=mystyle}
@@ -96,7 +96,16 @@ $$
 
 \subsection*{(c)}
 
+Denote:
+\begin{align*}
+&\bm a_1 = \bm x \bm W_1 + \bm b_1 \rightarrow \bm h = \text{sigmoid} (\bm a_1) \\
+&\bm a_2 = \bm h \bm W_2 + \bm b_2 \rightarrow \bm {\hat y} = \text{softmax} (\bm a_2)
+\end{align*}
 
+From last question,  we have 
+$$
+\frac{\partial}{\partial \bm {a_2}} CE(\bm y, \bm {\hat y})= \bm {\hat y} - \bm y
+$$
 
 
 
