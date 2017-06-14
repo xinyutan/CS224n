@@ -95,22 +95,12 @@ $$
 $$
 
 \subsection*{(c)}
-
-Denote:
+Denote $\bm a_1 = \bm x \bm W_1 + \bm b_1$ and $\bm a_2 = \bm h \bm W_2 + \bm b_2$. Therefore, we have
 \begin{align*}
-&\bm a_1 = \bm x \bm W_1 + \bm b_1 \rightarrow \bm h = \text{sigmoid} (\bm a_1) \\
-&\bm a_2 = \bm h \bm W_2 + \bm b_2 \rightarrow \bm {\hat y} = \text{softmax} (\bm a_2)
+& \bm z_1 = \frac{\partial CE}{\partial \bm a_2} = \bm {\hat y} - \bm y \\
+& \bm z_2 = \frac{\partial CE}{\partial \bm h} = \frac{\partial CE}{\partial \bm a_2} \times \frac{\partial \bm a_2} {\partial \bm h} = \bm z_1 \bm W_2 \\
+& \bm z_3 = \frac{\partial CE}{\partial \bm x} = \frac{\partial CE}{\partial \bm h} \times \frac{\partial \bm h}{\partial \bm x} = \bm z_2 \sigma'(\bm x \bm W_1 + \bm b_1) \bm W_1
 \end{align*}
-
-From last question,  we have 
-$$
-\frac{\partial}{\partial \bm {a_2}} CE(\bm y, \bm {\hat y})= \bm {\hat y} - \bm y
-$$
-
-
-
-
-
 
 	
 \end{document}
