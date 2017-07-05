@@ -18,10 +18,12 @@ def gradcheck_naive(f, x):
 	random.setstate(rndstate)
 	fx, grad = f(x) # Evaluate function value at original point
 	h = 1e-4		# Do not change this!
-	print 'fx, grad: ', fx, grad
+	print ('fx, grad: ', fx, grad)
 	# Iterate over all indexes in x
 	it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
+	#print("it list: ", list(it))
 	while not it.finished:
+		#print(ix)
 		ix = it.multi_index
 
 		# Try modifying x[ix] with h defined above to compute
@@ -43,15 +45,16 @@ def gradcheck_naive(f, x):
 		# Compare gradients
 		reldiff = abs(numgrad - grad[ix]) / max(1, abs(numgrad), abs(grad[ix]))
 		if reldiff > 1e-5:
-			print "Gradient check failed."
-			print "First gradient error found at index %s" % str(ix)
-			print "Your gradient: %f \t Numerical gradient: %f" % (
-				grad[ix], numgrad)
-			return
-
+			print('\n\n')
+			print(ix)
+			print("Gradient check failed.")
+			print("First gradient error found at index %s" % str(ix))
+			print("Your gradient: %f \t Numerical gradient: %f" % (
+				grad[ix], numgrad))
+			#return 
 		it.iternext() # Step to next dimension
 
-	print "Gradient check passed!"
+	print("Gradient check passed!")
 
 
 def sanity_check():
@@ -60,14 +63,10 @@ def sanity_check():
 	"""
 	quad = lambda x: (np.sum(x ** 2), x * 2)
 
-	print "Running sanity checks..."
-	print '1'
+	print("Running sanity checks...")
 	gradcheck_naive(quad, np.array(123.456))	  # scalar test
-	print '2'
 	gradcheck_naive(quad, np.array([1.4, 1.5, 1.67]))#np.random.randn(3,))	  # 1-D test
-	print '3'
 	gradcheck_naive(quad, np.random.randn(4,5))   # 2-D test
-	print ""
 
 
 def your_sanity_checks():
@@ -77,12 +76,14 @@ def your_sanity_checks():
 	This function will not be called by the autograder, nor will
 	your additional tests be graded.
 	"""
-	print "Running your sanity checks..."
+	print ("Running your sanity checks...")
 	### YOUR CODE HERE
-	raise NotImplementedError
+	func = lambda x: (np.sum(x**2 + 3 * x + 4), 2*x + 3)
+	print("running my sanity check...")
+	gradcheck_naive(func, np.random.randn(10, 2))
 	### END YOUR CODE
 
 
 if __name__ == "__main__":
 	sanity_check()
-	#your_sanity_checks()
+	your_sanity_checks()
