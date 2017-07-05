@@ -95,12 +95,24 @@ $$
 $$
 
 \subsection*{(c)}
-Denote $\bm a_1 = \bm x \bm W_1 + \bm b_1$ and $\bm a_2 = \bm h \bm W_2 + \bm b_2$. Therefore, we have
+We have 
 \begin{align*}
-& \bm z_1 = \frac{\partial CE}{\partial \bm a_2} = \bm {\hat y} - \bm y \\
-& \bm z_2 = \frac{\partial CE}{\partial \bm h} = \frac{\partial CE}{\partial \bm a_2} \times \frac{\partial \bm a_2} {\partial \bm h} = \bm z_1 \bm W_2 \\
-& \bm z_3 = \frac{\partial CE}{\partial \bm x} = \frac{\partial CE}{\partial \bm h} \times \frac{\partial \bm h}{\partial \bm x} = \bm z_2 \sigma'(\bm x \bm W_1 + \bm b_1) \bm W_1
+\bm {\hat y} &= \text{softmax}(\bm h \bm W_2 + \bm b_2) \\
+	           &= \text{softmax} \left ( \text{sigmoid} (\bm x \bm W_1 + \bm b_1)  + \bm b_2\right)
+\end{align*}
+Denote $\bm a_2 = \bm h \bm W_2 + \bm b_2$ and $\bm a_1 = \bm x \bm W_1 + \bm b_1$, then 
+\begin{align*}
+\frac{\partial CE(\bm y, \bm {\hat y})} {\partial \bm x} &=  \frac{\partial CE(\bm y, \bm {\hat y})}{\partial \bm a_2} \frac{\partial \bm a_2}{\partial \bm x} \\
+&=  (\bm {\hat y} - \bm y) \frac{\partial \bm a_2}{\partial \bm h} \frac{\partial \bm h} {\partial \bm x} \\
+&= (\bm {\hat y} - \bm y) \bm W_2^T \sigma'(\bm a_1) \bm W_1^T
 \end{align*}
 
+\subsection*{(d)}
+
+There are in total $D_x H + H +H D_y+Dy$ parameters.
+
+\subsection*{(e)}
+
+There are in total $D_x H + H +H D_y+Dy$ parameters.
 	
 \end{document}
