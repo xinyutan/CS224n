@@ -37,9 +37,9 @@ def forward_backward_prop(data, labels, params, dimensions):
 
 	### YOUR CODE HERE: forward propagation
 	print(data.shape, W1.shape, b1.shape, W2.shape, b2.shape)
-	h  = sigmoid(np.dot(data, W1) + b1)
+	h = sigmoid(np.dot(data, W1) + b1)
+	h_grad = sigmoid_grad(np.dot(data, W1) + b1)
 	yhat = softmax(np.dot(h, W2) + b2)
-	print("yhat", yhat)
 	cost = -np.sum(labels*np.log(yhat))
 	### END YOUR CODE
 	#print("cost: ", cost)
@@ -48,12 +48,12 @@ def forward_backward_prop(data, labels, params, dimensions):
 	M = data.shape[0]	
 	delta_o = yhat - labels
 	gradb2 = delta_o
-	print("gradb2:", gradb2)
 	gradW2 = np.matmul(h.T, yhat-labels) 
 	delta_1 = np.matmul(yhat - labels, W2.T) # M * H
-	gradb1 = np.matmul(delta_o.T, h * (1-h))
+	print("delta_1:", delta_1)
+	gradb1 = delta_o * h_grad
 	gradW1 = np.matmul(data.T, delta_1)
-	
+	print("shape of gradb1, gradW1: ", gradb1.shape, gradW1.shape)	
 	### END YOUR CODE
 
 	### Stack gradients (do not modify)
@@ -71,7 +71,7 @@ def sanity_check():
 	print ("Running sanity check...")
 
 	N = 1
-	dimensions = [2, 2, 2]
+	dimensions = [10, 5, 10]
 	data = np.random.randn(N, dimensions[0])   # each row will be a datum
 	labels = np.zeros((N, dimensions[2]))
 	for i in range(N):
