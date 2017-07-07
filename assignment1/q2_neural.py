@@ -36,24 +36,29 @@ def forward_backward_prop(data, labels, params, dimensions):
 	b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
 	### YOUR CODE HERE: forward propagation
-	print(data.shape, W1.shape, b1.shape, W2.shape, b2.shape)
-	h = sigmoid(np.dot(data, W1) + b1)
-	h_grad = sigmoid_grad(np.dot(data, W1) + b1)
-	yhat = softmax(np.dot(h, W2) + b2)
-	cost = -np.sum(labels*np.log(yhat))
-	### END YOUR CODE
-	#print("cost: ", cost)
-
-	### YOUR CODE HERE: backward propagation
-	M = data.shape[0]	
-	delta_o = yhat - labels
-	gradb2 = delta_o
-	gradW2 = np.matmul(h.T, yhat-labels) 
-	delta_1 = np.matmul(yhat - labels, W2.T) # M * H
-	print("delta_1:", delta_1)
-	gradb1 = delta_o * h_grad
-	gradW1 = np.matmul(data.T, delta_1)
-	print("shape of gradb1, gradW1: ", gradb1.shape, gradW1.shape)	
+	gradb1 = np.zeros_like(b1)
+	gradW1 = np.zeros_like(W1)
+	gradb2 = np.zeros_like(b2)
+	gradW2 = np.zeros_like(W2)
+	cost = 0
+	for i in range(data.shape[0]):
+		## forward pass
+		datai = data[i].reshape((1, Dx))
+		labeli = labels[i].reshape((1, Dy))
+		
+		h = sigmoid(np.matmul(datai, W1) + b1)
+		yhati = softmax(np.matmul(h, W2) + b2)
+		cost += -np.sum(labeli * np.log(yhati))
+		
+		## backpropagation
+		grada2 = yhati - labeli
+		gradb2 += grada2
+		gradW2 += np.matmul(h.T, grada2)
+		
+		grada1 = np.matmul(grada2, W2.T)
+		gradb1 += h * (1 - h) * grada1
+		gradW1 += np.matmul(datai.T, h*(1-h)*grada1)
+		
 	### END YOUR CODE
 
 	### Stack gradients (do not modify)
@@ -70,7 +75,7 @@ def sanity_check():
 	"""
 	print ("Running sanity check...")
 
-	N = 1
+	N = 20
 	dimensions = [10, 5, 10]
 	data = np.random.randn(N, dimensions[0])   # each row will be a datum
 	labels = np.zeros((N, dimensions[2]))
