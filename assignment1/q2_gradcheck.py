@@ -32,6 +32,7 @@ def gradcheck_naive(f, x):
 		# to test cost functions with built in randomness later.
 
 		### YOUR CODE HERE:
+		"""
 		x_newp, x_newn = np.array(x), np.array(x)
 		x_newp[ix] += h
 		x_newn[ix] -= h
@@ -41,7 +42,16 @@ def gradcheck_naive(f, x):
 		fnx, _ = f(x_newn)
 		numgrad = (fpx - fnx) / (2*h)
 		### END YOUR CODE
-
+		"""
+		temp_x = x.astype('float64')
+		temp_x[ix] += h
+		random.setstate(rndstate)
+		pos, _ = f(temp_x)
+		# temp_x = x
+		temp_x[ix] -= 2*h
+		random.setstate(rndstate)
+		neg, _ = f(temp_x)
+		numgrad = (pos - neg)/ (2*h)
 		# Compare gradients
 		reldiff = abs(numgrad - grad[ix]) / max(1, abs(numgrad), abs(grad[ix]))
 		if reldiff > 1e-5:
@@ -51,7 +61,7 @@ def gradcheck_naive(f, x):
 			print("First gradient error found at index %s" % str(ix))
 			print("Your gradient: %f \t Numerical gradient: %f" % (
 				grad[ix], numgrad))
-			return 
+			return
 		it.iternext() # Step to next dimension
 	print(len(grad))
 	print("Gradient check passed!")
