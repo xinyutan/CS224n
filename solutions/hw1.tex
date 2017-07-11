@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage[margin=0.5in]{geometry}
+\usepackage[margin=0.75in]{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath,amsthm,amssymb,amsfonts, bm}
 \usepackage{enumitem, nth}
@@ -111,8 +111,63 @@ Denote $\bm a_2 = \bm h \bm W_2 + \bm b_2$ and $\bm a_1 = \bm x \bm W_1 + \bm b_
 
 There are in total $D_x H + H +H D_y+Dy$ parameters.
 
-\subsection*{(e)}
 
-There are in total $D_x H + H +H D_y+Dy$ parameters.
-	
+%----------------------------------------------
+% problem 3: word2vec
+%----------------------------------------------
+\section{word2vec}
+
+\subsection*{(a)}	
+For a word $\bm o$, the loss function is
+\begin{align*}
+L &= -y_o \log {\hat y_o} = -\log {\frac{\exp(\bm u_o^T \bm v_c)} {\sum_{w=1}^W \exp(\bm u_w^T \bm v_c)}} \\
+   &= -\bm u_o^T \bm v_c + \log{\sum_{w=1}^W \exp(\bm u_w^T \bm v_c})
+\end{align*}
+
+Therefore, derivative with respect to $\bm v_c$ is:
+\begin{align*}
+\frac{\partial L}{\partial \bm v_c} &= -\bm u_o + \frac{1}{\sum_{l=1}^{W} \exp( \bm u_l^T \bm v_c)} \sum_{w=1}^{W} \exp(\bm u_w^T \bm v_c) \bm u_w \\
+&= -\bm u_o + \sum_{w=1}^W p(w|c) \bm u_w
+\end{align*}
+where $$p(w|c) = \frac{\exp(\bm u_w^T \bm v_c)}{\sum_{l=1}^{W} \exp( \bm u_l^T \bm v_c)}$$.
+
+
+\subsection*{(b)}
+Similarly,
+
+$$
+\frac{\partial L}{\partial \bm u_w} = \begin{cases}
+						- (1 - \hat y_o)\bm v_c ( & w =o \\
+						\hat y_w \bm v_c  & w \neq o
+						     \end{cases}
+$$
+
+\subsection*{(c)}
+Given $$J_{\text{neg-sample}}(\bm o, \bm v_c, \bm U) = -\log \sigma (\bm u_o^T \bm v_c) - \sum_{k=1}^K \log \sigma (-\bm u_o^T \bm v_c) $$
+we have 
+\begin{align*}
+\frac{\partial J}{\partial \bm v_c} = - \sigma (-\bm u_o^T \bm v_c) \bm u_o + \sum_{k=1}^K \sigma(\bm u_k^T \bm v_c) \bm u_k
+\end{align*}
+and
+$$
+\frac{\partial J}{\partial \bm u_w} = \begin{cases}
+					-\sigma(-\bm u_w^T \bm v_c)\bm v_c & w = o \\
+					\sigma(\bm u_w^T \bm v_c)\bm v_c & w \neq o
+					\end{cases}
+$$
+
+\subsection*{(d)}
+Let's denote $\bm U$ the matrix that aggregates all the output word vectors. 
+
+\begin{enumerate}
+\item Skip-gram: 
+	$$\frac{\partial J_\text{skip-gram}}{\partial \bm U} = \sum_{j\neq0} \frac{\partial F(\bm u_{c+j}, \bm v_c)}{\partial \bm U}$$ 
+	$$\frac{\partial J_\text{skip-gram}}{\partial \bm v_c} =  \sum_{j\neq0} \frac{\partial F(\bm u_{c+j}, \bm v_c)}{\partial \bm v_c}$$
+\item CBOW: 
+	$$\frac{\partial J_\text{CBOW}}{\partial \bm U} = \frac{\partial F(\bm u_{c}, \bm{\hat v})}{\partial \bm U}$$
+	$$\frac{\partial J_\text{CBOW}}{\partial \bm v_j} = \frac{\partial F(\bm u_{c}, \bm{\hat v})}{\partial \bm{\hat v}}$$ 
+\end{enumerate}
+
+
+
 \end{document}
