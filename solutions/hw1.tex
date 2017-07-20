@@ -168,6 +168,51 @@ Let's denote $\bm U$ the matrix that aggregates all the output word vectors.
 	$$\frac{\partial J_\text{CBOW}}{\partial \bm v_j} = \frac{\partial F(\bm u_{c}, \bm{\hat v})}{\partial \bm{\hat v}}$$ 
 \end{enumerate}
 
+\subsection*{(g)}
+
+\includegraphics[scale=0.8]{../assignment1/q3_word_vectors.png}
+
+Summary: ``the'', ``a'', and ``an'' are close to each other; most adjectives are clustered at the bottom of the graph; ``wonderful'' somehow is far from its similar words. 
+
+%----------------------------------------------
+% problem 4: Sentiment Analysis
+%----------------------------------------------
+\section{Sentiment Analysis}
+
+\subsection*{(b)}
+The main reason to introduce regularization is to avoid overfitting. 
+
+\subsection*{(c)}
+Code for choosing the best model:
+\begin{lstlisting}[language=Python]
+def chooseBestModel(results):
+    """Choose the best model based on parameter tuning on the dev set
+
+    Arguments:
+    results -- A list of python dictionaries of the following format:
+        {
+            "reg": regularization,
+            "clf": classifier,
+            "train": trainAccuracy,
+            "dev": devAccuracy,
+            "test": testAccuracy
+        }
+
+    Returns:
+    Your chosen result dictionary.
+    """
+    bestResult = None
+
+    ### YOUR CODE HERE
+    test_acc = []
+    for res in results:
+        test_acc.append(res["dev"])
+    ### END YOUR CODE
+    best_index = test_acc.index(max(test_acc))
+    bestResult = results[best_index]
+    return bestResult
+\end{lstlisting}
+
 
 
 \end{document}
