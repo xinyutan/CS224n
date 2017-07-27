@@ -53,10 +53,7 @@ def cross_entropy_loss(y, yhat):
         out:  tf.Tensor with shape (1,) (Scalar output). You need to construct this
                     tensor in the problem.
     """
-
-    ### YOUR CODE HERE
-    ### END YOUR CODE
-    out = 0
+    out = - tf.reduce_sum(tf.cast(y, tf.float32) * tf.log(yhat))
 
     return out
 
@@ -87,18 +84,18 @@ def test_cross_entropy_loss_basic():
     Warning: these are not exhaustive.
     """
     y = np.array([[0, 1], [1, 0], [1, 0]])
-    yhat = np.array([[.5, .5], [.5, .5], [.5, .5]])
+    yhat = np.array([[.5, .5], [.8, .2], [.1, .9]])
 
     test1 = cross_entropy_loss(
             tf.constant(y, dtype=tf.int32),
             tf.constant(yhat, dtype=tf.float32))
     with tf.Session() as sess:
         test1 = sess.run(test1)
-    expected = -3 * np.log(.5)
+    expected = - np.sum(y * np.log(yhat))
     test_all_close("Cross-entropy test 1", test1, expected)
 
     print("Basic (non-exhaustive) cross-entropy tests pass")
 
 if __name__ == "__main__":
     test_softmax_basic()
-    #test_cross_entropy_loss_basic()
+    test_cross_entropy_loss_basic()
