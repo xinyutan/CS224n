@@ -86,8 +86,8 @@ class SoftmaxModel(Model):
 		Returns:
 			pred: A tensor of shape (batch_size, n_classes)
 		"""
-		self.W = tf.Variable(tf.zeros([self.config.n_features, 1], tf.float32))		
-		self.b = tf.Variable(tf.zeros((1, ), tf.float32))
+		self.W = tf.Variable(tf.random_normal(shape=[self.config.n_features, self.config.n_classes], mean=0, stddev=0.3), tf.float32)		
+		self.b = tf.Variable(tf.random_normal(shape=(1, self.config.n_classes), mean=0, stddev=0.03), tf.float32)
 		pred = softmax(tf.matmul(self.input_placeholder, self.W) + self.b)
 		return pred
 
@@ -123,7 +123,8 @@ class SoftmaxModel(Model):
 		Returns:
 			train_op: The Op for training.
 		"""
-		train_op = tf.train.GradientDescentOptimizer(self.config.lr).minimize(loss)
+		minimizer = tf.train.GradientDescentOptimizer(self.config.lr)
+		train_op = minimizer.minimize(loss)
 		return train_op
 
 	def run_epoch(self, sess, inputs, labels):
@@ -140,7 +141,7 @@ class SoftmaxModel(Model):
 		for input_batch, labels_batch in get_minibatches([inputs, labels], self.config.batch_size):
 			n_minibatches += 1
 			total_loss += self.train_on_batch(sess, input_batch, labels_batch)
-		return total_loss / n_minibatches
+		return total_loss / float(n_minibatches)
 
 	def fit(self, sess, inputs, labels):
 		"""Fit model on provided data.
@@ -157,7 +158,7 @@ class SoftmaxModel(Model):
 			start_time = time.time()
 			average_loss = self.run_epoch(sess, inputs, labels)
 			duration = time.time() - start_time
-			print('Epoch {:}: loss = {:.2f} ({:.3f} sec)'.format(epoch, average_loss, duration))
+			print('Epoch {:}: loss = {:.10f} ({:.3f} sec)'.format(epoch, average_loss, duration))
 			losses.append(average_loss)
 		return losses
 
@@ -179,7 +180,7 @@ def test_softmax_model():
 	np.random.seed(1234)
 	inputs = np.random.rand(config.n_samples, config.n_features)
 	labels = np.zeros((config.n_samples, config.n_classes), dtype=np.int32)
-	labels[:, 0] = 1
+	labels[:, 4] = 1
 
 	# Tell TensorFlow that the model will be built into the default Graph.
 	# (not required but good practice)
@@ -196,8 +197,8 @@ def test_softmax_model():
 			# Run the Op to initialize the variables.
 			sess.run(init)
 			# Fit the model
+			W_val = sess.run([model.W])
 			losses = model.fit(sess, inputs, labels)
-
 	# If Ops are implemented correctly, the average loss should fall close to zero
 	# rapidly.
 	assert losses[-1] < .5
