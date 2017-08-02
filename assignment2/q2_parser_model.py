@@ -53,8 +53,9 @@ class ParserModel(Model):
 
         (Don't change the variable names)
         """
-        ### YOUR CODE HERE
-        ### END YOUR CODE
+        self.input_placeholder = tf.placeholder(shape=(None, self.config.n_features), dtype=tf.int32)
+        self.labels_placeholder = tf.placeholder(shape=(None, self.config.n_classes), dtype=tf.float32)
+        self.dropout_placeholder = tf.placeholder(shape=(), dtype=tf.float32)
 
     def create_feed_dict(self, inputs_batch, labels_batch=None, dropout=1):
         """Creates the feed_dict for the dependency parser.
@@ -78,8 +79,10 @@ class ParserModel(Model):
         Returns:
             feed_dict: The feed dictionary mapping from placeholders to values.
         """
-        ### YOUR CODE HERE
-        ### END YOUR CODE
+        if labels_batch:
+            feed_dict = {self.input_placeholder: inputs_batch, self.labels_placeholder: labels_batch, self.dropout_placeholder: dropout}
+        else:
+            feed_dict = {self.input_placeholder: inputs_batch, self.dropout_placeholder: dropout}
         return feed_dict
 
     def add_embedding(self):
@@ -209,20 +212,20 @@ class ParserModel(Model):
 
 
 def main(debug=True):
-    print 80 * "="
-    print "INITIALIZING"
-    print 80 * "="
+    print(80 * "=")
+    print("INITIALIZING")
+    print(80 * "=")
     config = Config()
     parser, embeddings, train_examples, dev_set, test_set = load_and_preprocess_data(debug)
     if not os.path.exists('./data/weights/'):
         os.makedirs('./data/weights/')
 
     with tf.Graph().as_default():
-        print "Building model...",
+        print("Building model...",)
         start = time.time()
         model = ParserModel(config, embeddings)
         parser.model = model
-        print "took {:.2f} seconds\n".format(time.time() - start)
+        print("took {:.2f} seconds\n".format(time.time() - start))
 
         init = tf.global_variables_initializer()
         # If you are using an old version of TensorFlow, you may have to use
@@ -234,24 +237,24 @@ def main(debug=True):
             parser.session = session
             session.run(init)
 
-            print 80 * "="
-            print "TRAINING"
-            print 80 * "="
+            print(80 * "=")
+            print("TRAINING")
+            print(80 * "=")
             model.fit(session, saver, parser, train_examples, dev_set)
 
             if not debug:
-                print 80 * "="
-                print "TESTING"
-                print 80 * "="
-                print "Restoring the best model weights found on the dev set"
+                print(80 * "=")
+                print("TESTING")
+                print(80 * "=")
+                print("Restoring the best model weights found on the dev set")
                 saver.restore(session, './data/weights/parser.weights')
-                print "Final evaluation on test set",
+                print("Final evaluation on test set",)
                 UAS, dependencies = parser.parse(test_set)
-                print "- test UAS: {:.2f}".format(UAS * 100.0)
-                print "Writing predictions"
+                print("- test UAS: {:.2f}".format(UAS * 100.0)
+                print("Writing predictions")
                 with open('q2_test.predicted.pkl', 'w') as f:
                     cPickle.dump(dependencies, f, -1)
-                print "Done!"
+                print("Done!")
 
 if __name__ == '__main__':
     main()
