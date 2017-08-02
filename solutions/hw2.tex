@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amsthm,amssymb,amsfonts, bm}
+\usepackage{enumitem, nth}
+\usepackage{mathtools}
+
+\usepackage{listings}
+\usepackage{color}
+ 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4
+}
+ 
+\lstset{style=mystyle}
+\newcommand*{\myfont}{\fontfamily{<qcr>}\selectfont}
+
+\begin{document}
+\title{CS224n HW2}
+\author{Xinyu Tan}
+\maketitle
+
+%------------------------------------------------------
+% problem 2: Neural Transition-based Dependency Parsing
+%------------------------------------------------------
+\section {Neural Transition-based Dependency Parsing}
+\subsection*{(a)}
+
+\begin{center}
+\begin{tabular}{c|c|c|c}
+stack & buffer & new dependency & transition\\
+\hline
+[root] & [I, parsed, this, sentence, correctly] &  & Initial Configuration \\
+{[root, I]} & [parsed, this, sentence, correctly] &  & {\myfont SHIFT } \\
+{[root, I, parsed]} & [this, sentence, correctly] &  & {\myfont SHIFT} \\ 
+{[root, parsed]} & [this, sentence, correctly] & parsed $\rightarrow$ I & {\myfont LEFT-ARC} \\ 
+{[root, parsed, this]} & [sentence, correctly] &  & {\myfont SHIFT} \\
+{[root, parsed, this, sentence]} & [correctly] &  & {\myfont SHIFT} \\
+{[root, parsed, sentence]} & [correctly] & sentence $\rightarrow$ this & {\myfont LEFT-ARC} \\
+{[root, parsed]} & [correctly] & parsed $\rightarrow$ sentence  & {\myfont RIGHT-ARC} \\
+{[root, parsed, correctly]} & [] &  & {\myfont SHIFT} \\
+{[root, parsed]} & [] & parsed $\rightarrow$ correctly  & {\myfont RIGHT-ARC} \\
+{[root]} & [] & root $\rightarrow$ parsed  & {\myfont RIGHT-ARC} \\
+\end{tabular}
+\end{center}
+
+\subsection*{(b)}
+
+The sentence will be parsed in $2n$ times. Each word will be pushed into stack once, and each word only depends on one other word. Therefore, the process is in $O(n)$ time complexity.   
+
+\subsection*{(f)}
+
+We need to satisfy: 
+$\mathbb{E}_{p_{\mathrm{drop}}}[\bm h_{\mathrm{drop}}]_i = \gamma (1-p_{\mathrm{drop}}) \bm h_i = \bm h_i$, then we have:  
+                        $$\gamma = \frac{1}{1 - p_{\mathrm{drop}}}$$
+
+
+\subsection*{(g)}
+\subsubsection*{(i)}
+
+\subsubsection*{(ii)}
+
+
+
+\end{document}
