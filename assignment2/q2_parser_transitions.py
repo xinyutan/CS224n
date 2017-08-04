@@ -15,9 +15,9 @@ class PartialParse(object):
 	
 		Args:
 			sentence: The sentence to be parsed as a list of words.
-  				Your code should not modify the sentence.
+				Your code should not modify the sentence.
 		"""
-	# The sentence being parsed is kept for bookkeeping purposes. Do not use it in your code.
+		# The sentence being parsed is kept for bookkeeping purposes. Do not use it in your code.
 		self.sentence = sentence
 
 		self.stack = ['ROOT']
@@ -58,7 +58,9 @@ class PartialParse(object):
 		for transition in transitions:
 			self.parse_step(transition)
 		return self.dependencies
-
+	
+	def is_finished(self):
+		return len(self.buffer) == 0 and len(self.stack) == 1
 
 def minibatch_parse(sentences, model, batch_size):
 	"""Parses a list of sentences in minibatches using a model.
@@ -76,10 +78,21 @@ def minibatch_parse(sentences, model, batch_size):
 			  Ordering should be the same as in sentences (i.e., dependencies[i] should
 			  contain the parse for sentences[i]).
 	"""
-	unfinished_partial_parses = partial_parses = [PartialParse(s) for s in sentences][::-1]
+	unfinished_parses = [PartialParse(s) for s in sentences]
+	idx = {p: i for i, p in enumerate(unfinished_parses)}
 	dependencies = [[] for _ in range(len(sentences))]
-    while unfinished_partial_parses:
-        
+	while unfinished_parses:
+		mini_batch = unfinished_parses[:batch_size]
+		cur_trans = model.predict(mini_batch)
+		for i, p in enumerate(mini_batch):
+			p.parse_step(cur_trans[i])
+		del_obj = []
+		for b in mini_batch:
+			if b.is_finished():
+				dependencies[idx[b]] = b.dependencies
+				del_obj.append(b)
+		for i in del_obj:
+			unfinished_parses.remove(i)
 	return dependencies
 
 
