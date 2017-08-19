@@ -1,7 +1,7 @@
 import os
 import time
 import tensorflow as tf
-import cPickle
+import pickle
 
 from model import Model
 from q2_initialization import xavier_weight_init
@@ -79,10 +79,10 @@ class ParserModel(Model):
         Returns:
             feed_dict: The feed dictionary mapping from placeholders to values.
         """
-        if labels_batch:
-            feed_dict = {self.input_placeholder: inputs_batch, self.labels_placeholder: labels_batch, self.dropout_placeholder: dropout}
-        else:
+        if labels_batch is None:
             feed_dict = {self.input_placeholder: inputs_batch, self.dropout_placeholder: dropout}
+        else:
+            feed_dict = {self.input_placeholder: inputs_batch, self.labels_placeholder: labels_batch, self.dropout_placeholder: dropout}
         return feed_dict
 
     def add_embedding(self):
@@ -103,6 +103,9 @@ class ParserModel(Model):
             embeddings: tf.Tensor of shape (None, n_features*embed_size)
         """
         ### YOUR CODE HERE
+        embeddings = tf.Variable(self.pretrained_embeddings, name="embedding")
+        embeddings = tf.nn.embedding_lookup(self.pretrained_embeddings, self.input_placeholder)
+        embeddings = tf.reshape(embeddings, (-1, self.config.n_features*self.config.embed_size))
         ### END YOUR CODE
         return embeddings
 
@@ -133,6 +136,16 @@ class ParserModel(Model):
 
         x = self.add_embedding()
         ### YOUR CODE HERE
+        xavier_initializer = xavier_weight_init()
+        W = tf.Variable(xavier_initializer(shape=(self.config.n_features * self.config.embed_size, self.config.hidden_size)))
+        b1 = tf.Variable(tf.zeros(dtype=tf.float32, shape=(self.config.hidden_size,)))
+        h = tf.nn.relu(tf.matmul(x, W) + b1)
+
+        U = tf.Variable(xavier_initializer(shape=(self.config.hidden_size, self.config.n_classes)))
+        b2 = tf.Variable(tf.zeros(dtype=tf.float32, shape=(self.config.n_classes,)))
+
+        pred = tf.matmul(h, U) + b2
+        
         ### END YOUR CODE
         return pred
 
@@ -150,6 +163,7 @@ class ParserModel(Model):
             loss: A 0-d tensor (scalar)
         """
         ### YOUR CODE HERE
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=self.labels_placeholder))
         ### END YOUR CODE
         return loss
 
@@ -173,6 +187,7 @@ class ParserModel(Model):
             train_op: The Op for training.
         """
         ### YOUR CODE HERE
+        train_op = tf.train.AdamOptimizer(self.config.lr).minimize(loss)
         ### END YOUR CODE
         return train_op
 
@@ -188,22 +203,22 @@ class ParserModel(Model):
             loss = self.train_on_batch(sess, train_x, train_y)
             prog.update(i + 1, [("train loss", loss)])
 
-        print "Evaluating on dev set",
+        print("Evaluating on dev set",)
         dev_UAS, _ = parser.parse(dev_set)
-        print "- dev UAS: {:.2f}".format(dev_UAS * 100.0)
+        print("- dev UAS: {:.2f}".format(dev_UAS * 100.0))
         return dev_UAS
 
     def fit(self, sess, saver, parser, train_examples, dev_set):
         best_dev_UAS = 0
         for epoch in range(self.config.n_epochs):
-            print "Epoch {:} out of {:}".format(epoch + 1, self.config.n_epochs)
+            print("Epoch {:} out of {:}".format(epoch + 1, self.config.n_epochs))
             dev_UAS = self.run_epoch(sess, parser, train_examples, dev_set)
             if dev_UAS > best_dev_UAS:
                 best_dev_UAS = dev_UAS
                 if saver:
-                    print "New best dev UAS! Saving model in ./data/weights/parser.weights"
+                    print("New best dev UAS! Saving model in ./data/weights/parser.weights")
                     saver.save(sess, './data/weights/parser.weights')
-            print
+            print()
 
     def __init__(self, config, pretrained_embeddings):
         self.pretrained_embeddings = pretrained_embeddings
@@ -250,10 +265,10 @@ def main(debug=True):
                 saver.restore(session, './data/weights/parser.weights')
                 print("Final evaluation on test set",)
                 UAS, dependencies = parser.parse(test_set)
-                print("- test UAS: {:.2f}".format(UAS * 100.0)
+                print("- test UAS: {:.2f}".format(UAS * 100.0))
                 print("Writing predictions")
                 with open('q2_test.predicted.pkl', 'w') as f:
-                    cPickle.dump(dependencies, f, -1)
+                    pickle.dump(dependencies, f, -1)
                 print("Done!")
 
 if __name__ == '__main__':
