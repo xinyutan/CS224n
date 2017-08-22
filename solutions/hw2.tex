@@ -80,6 +80,34 @@ $\mathbb{E}_{p_{\mathrm{drop}}}[\bm h_{\mathrm{drop}}]_i = \gamma (1-p_{\mathrm{
 
 \subsubsection*{(ii)}
 
+%---------------------------------------------------------
+% problem 3: Recurrant neural networks: Language Modeling 
+%---------------------------------------------------------
+\section{Recurrant neural networks: Language Modeling}
+
+\subsection*{(a)}
+Perplexity:
+$$
+PP^{(t)} \left (y^{(t)}, \hat y^{(t)} \right) = \frac{1}{y_k^{(t)} \hat y_k^{(t)}} = \frac{1}{\hat y_k^{(t)}}
+$$
+Cross-entropy loss:
+$$
+J^{(t)}(\theta) = -y_k^{(t)} \log \hat y_k^{(t)} = -\log \hat y_k^{(t)}
+$$
+Then, it is easy to derive that
+$$
+PP^{(t)} \left (y^{(t)}, \hat y^{(t)} \right) = e^{J^{(t)}(\theta)}
+$$
+Therefore, minimizing perplexity equals to minimizing the cross-entropy.
+
+For a vocabulary of $|V| = 10000$ words, if the model is completely random, then the perplexity will be 10000, and then the cross entropy will be $\log 10000 = 9.21$.
+
+\section*{(b)}
+
+The derivatives:
+$$
+\frac{\partial J^{(t)}}{\partial \bm b_2} = \frac{\partial J^{(t)}}{\partial \bm \theta} \frac{\partial \bm \theta}{\partial \bm b_2} = \bm {\hat y}^{(t)} - \bm y^{(t)}
+$$
 
 
 \end{document}
