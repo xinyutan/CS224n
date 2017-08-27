@@ -34,6 +34,7 @@
  
 \lstset{style=mystyle}
 \newcommand*{\myfont}{\fontfamily{<qcr>}\selectfont}
+\newcommand\at[2]{\left.#1\right|_{#2}}
 
 \begin{document}
 \title{CS224n HW2}
@@ -108,6 +109,64 @@ The derivatives:
 $$
 \frac{\partial J^{(t)}}{\partial \bm b_2} = \frac{\partial J^{(t)}}{\partial \bm \theta} \frac{\partial \bm \theta}{\partial \bm b_2} = \bm {\hat y}^{(t)} - \bm y^{(t)}
 $$
+Since $\bm \theta = \bm h^{(t)} U + \bm b_2$, every $\theta_i$ depends on every $h_j$, i.e.,
+$$
+\frac{\partial J}{\partial h_j^{(t)}} = \sum_{i=1}^{|V|} \frac{\partial J}{\partial \theta_i} \frac{\partial \theta_i}{\partial h_j^{(t)}} = \sum_{i=1}^{|V|} (\hat y_i - y_i) U_{ji}
+$$
+Hence, we have:
+$$
+\bm {\delta ^{(t)}} = \frac{\partial J^{(t)}}{\partial \bm h^{(t)}} =  \frac{\partial J^{(t)}}{\partial \bm \theta} \frac{\partial \bm \theta}{\partial \bm h^{(t)}} = (\bm {\hat y} - \bm y) \bm U^{T}
+$$
 
+Often times, when it's a lot of matrix multiplications, it's very hard to know when to use matrix multiplication, when to use $\odot$ (element multiplication). I find it helpful to write down the element-wise formula, then it's clearer which affects which. 
 
+Next, let's calculate $\frac{\partial J^{(t)}}{\partial \bm H}$. We have $\bm h^{(t)} = \sigma (\bm h^{(t-1)} \bm H + \bm e^{(t)} \bm I + \bm b_1)$, element wise:
+$$
+h_j^{(t)} = \sigma \left(  \sum_{k=1}^{D_n} h_k^{(t-1)} H_{kj} + \sum_{k=1}^{d} e_k^{(t)} I_{kj} + b_{1j}\right)
+$$
+Conceptually,
+$$
+\frac{\partial J^{(t)}}{\partial H_{kj}} = \frac{\partial J^{(t)}}{\partial h_j^{(t)}} \frac{\partial h_j^{(t)}}{\partial H_{kj}}  
+$$
+Therefore, 
+$$
+\frac{\partial J^{(t)}}{\partial \bm H} = {\bm h^{(t-1)}}^T \cdot \left (\bm {\delta ^{(t)}} \odot \bm h^{(t)} \odot \left (1- \bm h^{(t)} \right) \right )
+$$
+Similarly, we have 
+$$
+\frac{\partial J^{(t)}}{\partial \bm I} = {\bm e^{(t)}}^T \cdot \left (\bm {\delta ^{(t)}} \odot \bm h^{(t)} \odot \left (1- \bm h^{(t)} \right) \right )
+$$
+$$
+\frac{\partial J^{(t)}}{\partial \bm L_{x^{(t)}}} ={ \frac{\partial J^{(t)}}{\partial \bm e^{(t)}} }^T={ \bm {\delta ^{(t)}} \odot \bm h^{(t)} \odot \left (1- \bm h^{(t)} \right ) \cdot \bm I^T}^T = \bm I \cdot \left (\bm {\delta ^{(t)}} \odot \bm h^{(t)} \odot \left (1- \bm h^{(t)} \right ) \right)^T
+$$
+
+Additionally, 
+$$
+\bm {\delta ^{(t-1)}} = \frac{\partial J^{(t)}}{\partial \bm h^{(t-1)}} =  \sum_{k=1}^{D_h} \frac{\partial J^{(t)}}{\partial h_k^{(t)}} \frac{\partial h_k^{(t)}}{\partial \bm h^{(t-1)}} = \left(\bm \delta^{(t)}  \odot \bm h^{(t)} \odot \left (1- \bm h^{(t)} \right) \right) \bm H^T
+$$
+
+\section*{(c)}
+%-----1-----
+$$\at{\frac{\partial J^{(t)}}{\partial \bm H}}{(t-1)} = \frac{\partial J^{(t)}}{\partial \bm h^{(t-1)}} \frac{\partial \bm h^{(t-1)}}{\partial \bm H} = {\bm h^{(t-2)}}^T \cdot \left (\bm {\delta ^{(t-1)}} \odot \bm h^{(t-1)} \odot \left (1- \bm h^{(t-1)} \right) \right )$$
+%-----2-----
+$$
+\at{\frac{\partial J^{(t)}}{\partial \bm I}}{(t-1)} = \frac{\partial J^{(t)}}{\partial \bm h^{(t-1)}} \frac{\partial \bm h^{(t-1)}}{\partial \bm I} = {\bm e^{(t-1)}}^T \cdot \left (\bm {\delta ^{(t-1)}} \odot \bm h^{(t-1)} \odot \left (1- \bm h^{(t-1)} \right) \right) 
+$$
+%-----3-----
+$$
+\at{\frac{\partial J^{(t)}}{\partial \bm L_{x^{t-1}}}}{(t-1)} = \at{\frac{\partial J^{(t)}}{\partial \bm e^{(t-1)}}}{(t-1)} = \frac{\partial J^{(t)}}{\partial \bm h^{(t-1)}} \frac{\partial \bm h^{(t-1)}}{\partial \bm e^{(t-1)}} = \left (\bm {\delta ^{(t-1)}} \odot \bm h^{(t-1)} \odot \left (1- \bm h^{(t-1)} \right) \right) \cdot \bm I^T
+$$
+
+\subsection*{(d)}
+
+Given $\bm h^{(t-1)}$, forward pass requires to compute: $\bm h^{(t)} = \sigma \left (\bm h^{(t-1)} \bm H + \bm e^{(t)} \bm I  + b_1\right )$ and $\hat y^{t} = \text{softmax} \left(\bm h^{(t)} \bm U + b_2 \right)$. We know that for a $m\times n$ and $n \times l$ matrix multiplication, the complexity is $O(mnl)$. Therefore, the forward pass complexity is:
+$$
+O(D_h^2 + dD_h + D_h + D_h|V| + |V|) \approx O(D_h^2 + dD_h + D_h|V|)
+$$
+Similarly, the backward pass complexity (from $\bm \delta^{(t)}$) is approximately:
+$$
+ O(D_h^2 + dD_h + D_h|V|)
+$$
+
+Due to that $|V| >> D_h \text{ or } d$, therefore, the major time consuming step is softmax ($O(D_h|V|)$)
 \end{document}
